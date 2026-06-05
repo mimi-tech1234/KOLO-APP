@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Kolo App",
+    "slug": "kolo-app",
+    "scheme": "kolo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-local-authentication",
+      "expo-notifications"
+    ]
+  }
+}

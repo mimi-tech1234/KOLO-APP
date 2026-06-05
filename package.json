@@ -1,0 +1,16 @@
+{
+  "name": "kolo-app",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "dev:api": "npm --workspace @kolo/api run dev",
+    "dev:web": "npm --workspace @kolo/web run dev",
+    "dev:mobile": "npm --workspace @kolo/mobile run start",
+    "start:api": "npm --workspace @kolo/api run start"
+  }
+}
