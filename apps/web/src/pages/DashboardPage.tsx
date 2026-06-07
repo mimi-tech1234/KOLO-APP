@@ -3,16 +3,21 @@ import { Banner, Card, MiniChart, PageHeader } from "../components/ui";
 import { api } from "../services/api";
 
 type Summary = { income: number; expense: number; overdueDebt: number; profit: number };
+type Trend = { month: number; year: number; profit: number };
 
 export default function DashboardPage() {
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [trendValues, setTrendValues] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api
-      .getDashboardSummary()
-      .then(setSummary)
+    Promise.all([api.getDashboardSummary(), api.getDashboardTrends(7)])
+      .then(([summaryData, trends]) => {
+        setSummary(summaryData as Summary);
+        const profits = (trends as Trend[]).map((t) => t.profit);
+        setTrendValues(profits.length ? profits : [0]);
+      })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
@@ -36,10 +41,15 @@ export default function DashboardPage() {
               <p className="text-lg font-semibold text-danger">NGN {summary.expense.toLocaleString()}</p>
             </div>
           </div>
+          {summary.overdueDebt > 0 && (
+            <p className="text-danger text-sm mt-3 font-medium">
+              Overdue debt: NGN {summary.overdueDebt.toLocaleString()}
+            </p>
+          )}
         </Card>
       )}
-      <Card title="30-Day Profit Trend">
-        <MiniChart values={[32, 44, 26, 59, 71, 63, 80]} />
+      <Card title="Profit Trend">
+        <MiniChart values={trendValues} />
       </Card>
     </div>
   );

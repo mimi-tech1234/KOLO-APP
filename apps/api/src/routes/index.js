@@ -7,6 +7,7 @@ import {
   deleteTransaction,
   dashboardSummary,
   getTransactionTrend,
+  monthlyReport,
   marketPrices,
   calculateMargin,
   getMarketRegions
@@ -47,6 +48,7 @@ router.post("/auth/login", login);
 // ============= DASHBOARD & REPORTS =============
 router.get("/dashboard/summary", requireAuth, dashboardSummary);
 router.get("/dashboard/trends", requireAuth, getTransactionTrend);
+router.get("/dashboard/report", requireAuth, monthlyReport);
 
 // ============= TRANSACTION ROUTES =============
 router.post("/transactions", requireAuth, createTransaction);
@@ -81,6 +83,7 @@ router.delete("/inventory/:itemId", requireAuth, deleteInventoryItem);
 
 // ============= MARKET PRICING & INSIGHTS =============
 router.get("/market/prices", requireAuth, marketPrices);
+router.get("/prices", requireAuth, marketPrices);
 router.get("/market/regions", requireAuth, getMarketRegions);
 router.post("/market/calculate-margin", requireAuth, calculateMargin);
 

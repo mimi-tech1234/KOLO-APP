@@ -66,11 +66,17 @@ export function Button({
   );
 }
 
+export function toChartHeights(values: number[]): number[] {
+  const max = Math.max(...values, 1);
+  return values.map((v) => Math.round((v / max) * 100));
+}
+
 export function MiniChart({ values }: { values: number[] }) {
+  const heights = values.length ? toChartHeights(values) : [0];
   return (
     <div className="h-28 rounded-2xl bg-primary/10 px-3 py-3 flex items-end justify-between gap-1">
-      {values.map((v, i) => (
-        <div key={i} className="flex-1 rounded-lg bg-primary/80" style={{ height: `${v}%` }} />
+      {heights.map((v, i) => (
+        <div key={i} className="flex-1 rounded-lg bg-primary/80" style={{ height: `${Math.max(v, 4)}%` }} />
       ))}
     </div>
   );

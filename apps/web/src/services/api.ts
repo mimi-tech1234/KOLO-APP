@@ -55,9 +55,17 @@ export const api = {
   login: (payload: Record<string, unknown>) =>
     request("/auth/login", { method: "POST", body: JSON.stringify(payload) }),
   getDashboardSummary: () => request("/dashboard/summary"),
+  getDashboardTrends: (months = 6) =>
+    request(`/dashboard/trends?months=${months}`),
+  getMonthlyReport: () => request("/dashboard/report"),
+  getTransactions: () => request("/transactions"),
   getCustomers: () => request("/customers"),
+  getCustomersWithDebts: () => request("/customers/with-debts"),
   getInventory: () => request("/inventory"),
-  getMarketPrices: (region = "Lagos") => request(`/prices?region=${encodeURIComponent(region)}`),
+  getMarketPrices: (region = "Lagos") =>
+    request(`/market/prices?region=${encodeURIComponent(region)}`),
+  calculateMargin: (payload: { itemName: string; sellingPrice: number; region: string }) =>
+    request("/market/calculate-margin", { method: "POST", body: JSON.stringify(payload) }),
   createTransaction: (payload: Record<string, unknown>) =>
     request("/transactions", { method: "POST", body: JSON.stringify(payload) })
 };

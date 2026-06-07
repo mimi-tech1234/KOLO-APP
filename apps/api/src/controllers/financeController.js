@@ -74,9 +74,31 @@ export async function deleteTransaction(req, res) {
 export async function dashboardSummary(req, res) {
   try {
     const summary = await reportService.generateDashboardSummary(req.user.userId);
-    res.json(summary);
+    res.json({
+      ...summary,
+      income: summary.monthly.income,
+      expense: summary.monthly.expense,
+      profit: summary.monthly.profit,
+      overdueDebt: summary.debts.overdueAmount
+    });
   } catch (error) {
     res.status(500).json({ message: "Failed to generate summary", error: error.message });
+  }
+}
+
+export async function monthlyReport(req, res) {
+  try {
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const report = await reportService.generateDetailedReport(
+      req.user.userId,
+      startOfMonth,
+      endOfMonth
+    );
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to generate report", error: error.message });
   }
 }
 
@@ -131,16 +153,4 @@ export async function getMarketRegions(req, res) {
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch regions", error: error.message });
   }
-}
-    profit: Number(income.rows[0].total) - Number(expense.rows[0].total)
-  });
-}
-
-export async function marketPrices(req, res) {
-  const region = req.query.region || "Lagos";
-  const { rows } = await db.query(
-    "SELECT * FROM price_benchmarks WHERE region = $1 ORDER BY category",
-    [region]
-  );
-  res.json(rows);
 }

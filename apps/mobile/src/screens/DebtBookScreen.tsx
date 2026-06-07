@@ -10,7 +10,8 @@ type Debtor = {
   id: string;
   full_name: string;
   phone: string;
-  total_debt: string;
+  total_debt: number;
+  debts?: { status: string }[];
 };
 
 export function DebtBookScreen() {
@@ -23,7 +24,7 @@ export function DebtBookScreen() {
       setLoading(true);
       setError(null);
       try {
-        const rows = await api.getCustomers();
+        const rows = await api.getCustomersWithDebts();
         setDebtors(rows);
       } catch (err) {
         setError((err as Error).message);
@@ -35,9 +36,14 @@ export function DebtBookScreen() {
   }, []);
 
   const remind = async (phone: string) => {
+    if (!phone) return;
     const url = `https://wa.me/${phone}?text=Hello%20from%20Kolo%20App.%20A%20friendly%20debt%20reminder.`;
     await Linking.openURL(url);
   };
+
+  const isOverdue = (d: Debtor) =>
+    Number(d.total_debt) > 0 &&
+    (d.debts?.some((debt) => debt.status === "overdue") ?? false);
 
   return (
     <ScreenContainer>
@@ -47,17 +53,26 @@ export function DebtBookScreen() {
       />
       <StatusBanner type="info" message={loading ? "Loading debtors..." : null} />
       <StatusBanner type="error" message={error} />
+      {!loading && debtors.length === 0 && (
+        <KoloCard title="No customers yet">
+          <Text className="text-text">Add customers and debts to see them here.</Text>
+        </KoloCard>
+      )}
       {debtors.map((d) => (
         <KoloCard title={d.full_name} key={d.id}>
-          <Text className="text-text mb-2">Debt: {Number(d.total_debt).toLocaleString()}</Text>
-          {Number(d.total_debt) > 0 ? (
+          <Text className="text-text mb-2">Debt: NGN {Number(d.total_debt).toLocaleString()}</Text>
+          {isOverdue(d) ? (
             <Text className="text-danger font-semibold mb-2">Overdue</Text>
+          ) : Number(d.total_debt) > 0 ? (
+            <Text className="text-warm font-semibold mb-2">Open</Text>
           ) : (
             <Text className="text-success font-semibold mb-2">On schedule</Text>
           )}
-          <Pressable className="bg-success rounded-xl p-3" onPress={() => remind(d.phone)}>
-            <Text className="text-white text-center">Send WhatsApp Reminder</Text>
-          </Pressable>
+          {d.phone ? (
+            <Pressable className="bg-success rounded-xl p-3" onPress={() => remind(d.phone)}>
+              <Text className="text-white text-center">Send WhatsApp Reminder</Text>
+            </Pressable>
+          ) : null}
         </KoloCard>
       ))}
     </ScreenContainer>

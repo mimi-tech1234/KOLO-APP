@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Share } from "react-native";
 import * as LocalAuthentication from "expo-local-authentication";
 import { KoloCard } from "../components/KoloCard";
 import {
@@ -12,9 +12,15 @@ import { SectionHeader } from "../components/SectionHeader";
 import { PrimaryButton } from "../components/PrimaryButton";
 import { StatusBanner } from "../components/StatusBanner";
 
+type MonthlyReport = {
+  totals: { income: number; expense: number; profit: number };
+  transactionCount: number;
+};
+
 export function TrustShareScreen() {
   const [lockState, setLockState] = useState("Disabled");
   const [pushState, setPushState] = useState("Not registered");
+  const [reportLoading, setReportLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const enableBiometric = async () => {
@@ -37,6 +43,26 @@ export function TrustShareScreen() {
     }
   };
 
+  const generateReport = async () => {
+    setReportLoading(true);
+    setError(null);
+    try {
+      const report = (await api.getMonthlyReport()) as MonthlyReport;
+      const message = [
+        "Kolo Monthly Summary",
+        `Income: NGN ${report.totals.income.toLocaleString()}`,
+        `Expense: NGN ${report.totals.expense.toLocaleString()}`,
+        `Profit: NGN ${report.totals.profit.toLocaleString()}`,
+        `Transactions: ${report.transactionCount}`
+      ].join("\n");
+      await Share.share({ message, title: "Kolo Monthly Summary" });
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   return (
     <ScreenContainer>
       <SectionHeader title="Trust & Share" subtitle="Protect access and keep trusted family informed." />
@@ -47,10 +73,15 @@ export function TrustShareScreen() {
       </KoloCard>
 
       <KoloCard title="Share Reports">
-        <Text className="text-text">Generate PDF/image report and share with trusted contacts.</Text>
-        <Pressable className="mt-3 bg-accent rounded-xl p-3">
-          <Text className="text-primary text-center font-semibold">Generate Monthly Summary</Text>
-        </Pressable>
+        <Text className="text-text mb-3">
+          Generate a monthly summary from your live data and share with trusted contacts.
+        </Text>
+        <PrimaryButton
+          title="Generate Monthly Summary"
+          loading={reportLoading}
+          onPress={generateReport}
+          tone="accent"
+        />
       </KoloCard>
       <KoloCard title="Push Alerts">
         <Text className="text-text mb-2">Push status: {pushState}</Text>

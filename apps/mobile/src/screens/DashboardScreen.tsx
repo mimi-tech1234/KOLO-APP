@@ -13,8 +13,16 @@ type Summary = {
   profit: number;
 };
 
+type Trend = { profit: number };
+
+function toChartHeights(values: number[]) {
+  const max = Math.max(...values, 1);
+  return values.map((v) => Math.round((v / max) * 100));
+}
+
 export function DashboardScreen() {
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [trendValues, setTrendValues] = useState<number[]>([0]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const fade = useRef(new Animated.Value(0)).current;
@@ -24,8 +32,13 @@ export function DashboardScreen() {
       setLoading(true);
       setError(null);
       try {
-        const data = await api.getDashboardSummary();
-        setSummary(data);
+        const [data, trends] = await Promise.all([
+          api.getDashboardSummary(),
+          api.getDashboardTrends(7)
+        ]);
+        setSummary(data as Summary);
+        const profits = (trends as Trend[]).map((t) => t.profit);
+        setTrendValues(profits.length ? toChartHeights(profits) : [0]);
       } catch (err) {
         setError((err as Error).message);
       } finally {
@@ -62,15 +75,24 @@ export function DashboardScreen() {
                 <Text className="text-lg font-semibold text-danger">NGN {summary.expense.toLocaleString()}</Text>
               </View>
             </View>
+            {summary.overdueDebt > 0 && (
+              <Text className="text-danger text-sm mt-3 font-medium">
+                Overdue debt: NGN {summary.overdueDebt.toLocaleString()}
+              </Text>
+            )}
           </Animated.View>
         )}
       </KoloCard>
 
-      <KoloCard title="30-Day Profit Trend">
+      <KoloCard title="Profit Trend">
         <View className="h-28 rounded-2xl bg-primary/10 px-3 py-3">
           <View className="flex-row h-full items-end justify-between">
-            {[32, 44, 26, 59, 71, 63, 80].map((v, idx) => (
-              <View key={idx} className="w-7 rounded-lg bg-primary/80" style={{ height: `${v}%` }} />
+            {trendValues.map((v, idx) => (
+              <View
+                key={idx}
+                className="w-7 rounded-lg bg-primary/80"
+                style={{ height: `${Math.max(v, 4)}%` }}
+              />
             ))}
           </View>
         </View>
