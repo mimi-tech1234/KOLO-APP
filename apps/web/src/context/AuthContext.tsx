@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const stored = getStoredUser();
     if (stored && localStorage.getItem("kolo_token")) {
-      setUser(stored);
+      setUser(stored as unknown as User);
     }
     setLoading(false);
   }, []);

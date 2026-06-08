@@ -30,6 +30,10 @@ Thumbs.db
 # Build outputs
 dist/
 build/
+apps/web/android/app/build/
+apps/web/android/.gradle/
+apps/web/android/local.properties
+apps/web/tsconfig.tsbuildinfo
 .next/
 out/
 coverage/

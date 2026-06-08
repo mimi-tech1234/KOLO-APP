@@ -5,15 +5,25 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "build": "tsc && vite build",
+    "build:pwa": "npm run build",
+    "preview": "vite preview",
+    "cap:sync": "npx cap sync",
+    "cap:add:android": "npx cap add android",
+    "cap:open:android": "npx cap open android",
+    "build:android": "npm run build && npx cap sync android",
+    "apk:debug": "powershell -ExecutionPolicy Bypass -File scripts/build-apk.ps1",
+    "apk:release": "npm run build:android && cd android && gradlew.bat assembleRelease"
   },
   "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^6.2.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
@@ -21,6 +31,8 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.6.3",
-    "vite": "^5.4.11"
+    "vite": "^5.4.11",
+    "vite-plugin-pwa": "^0.21.1",
+    "workbox-window": "^7.3.0"
   }
 }

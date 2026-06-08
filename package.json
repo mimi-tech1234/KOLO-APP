@@ -11,6 +11,9 @@
     "dev:api": "npm --workspace @kolo/api run dev",
     "dev:web": "npm --workspace @kolo/web run dev",
     "dev:mobile": "npm --workspace @kolo/mobile run start",
-    "start:api": "npm --workspace @kolo/api run start"
+    "start:api": "npm --workspace @kolo/api run start",
+    "build:pwa": "npm --workspace @kolo/web run build:pwa",
+    "build:apk": "npm --workspace @kolo/web run apk:debug",
+    "cap:open:android": "npm --workspace @kolo/web run cap:open:android"
   }
 }
