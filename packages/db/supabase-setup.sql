@@ -1,5 +1,14 @@
+-- =============================================================================
+-- KOLO APP — Full database setup for Supabase
+-- =============================================================================
+-- 1. Open https://supabase.com/dashboard → your project
+-- 2. Left sidebar → SQL Editor → New query
+-- 3. Paste this entire file and click Run
+-- =============================================================================
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Users (auth profiles; passwords managed by the API)
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   full_name VARCHAR(120) NOT NULL,
@@ -15,6 +24,7 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+-- Income / expense ledger
 CREATE TABLE IF NOT EXISTS transactions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -28,6 +38,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+-- Customer directory
 CREATE TABLE IF NOT EXISTS customers (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -38,6 +49,7 @@ CREATE TABLE IF NOT EXISTS customers (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+-- Customer debts
 CREATE TABLE IF NOT EXISTS debts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -50,6 +62,7 @@ CREATE TABLE IF NOT EXISTS debts (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+-- Stock / inventory
 CREATE TABLE IF NOT EXISTS inventory_items (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -63,6 +76,7 @@ CREATE TABLE IF NOT EXISTS inventory_items (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+-- Regional market price benchmarks (anti-scam / pricing screen)
 CREATE TABLE IF NOT EXISTS price_benchmarks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   region VARCHAR(40) NOT NULL,
@@ -75,6 +89,7 @@ CREATE TABLE IF NOT EXISTS price_benchmarks (
   UNIQUE (region, item_name, currency)
 );
 
+-- Push notification device tokens
 CREATE TABLE IF NOT EXISTS push_tokens (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -85,6 +100,7 @@ CREATE TABLE IF NOT EXISTS push_tokens (
   UNIQUE (user_id, platform)
 );
 
+-- Indexes
 CREATE INDEX IF NOT EXISTS idx_transactions_user_date ON transactions(user_id, transaction_date DESC);
 CREATE INDEX IF NOT EXISTS idx_debts_user_status ON debts(user_id, status);
 CREATE INDEX IF NOT EXISTS idx_debts_customer ON debts(customer_id);
@@ -92,3 +108,13 @@ CREATE INDEX IF NOT EXISTS idx_inventory_user_qty ON inventory_items(user_id, qu
 CREATE INDEX IF NOT EXISTS idx_customers_user ON customers(user_id);
 CREATE INDEX IF NOT EXISTS idx_price_benchmarks_region ON price_benchmarks(region, category);
 CREATE INDEX IF NOT EXISTS idx_push_tokens_user ON push_tokens(user_id);
+
+-- Seed market prices
+INSERT INTO price_benchmarks (region, item_name, category, benchmark_price, currency, source)
+VALUES
+  ('Lagos', 'Leather Shoes Repair', 'Cobbler', 5000, 'NGN', 'Kolo Survey Q2 2026'),
+  ('Lagos', 'Ankara Dress Sewing', 'Tailoring', 18000, 'NGN', 'Kolo Survey Q2 2026'),
+  ('Accra', 'Hair Braiding (Medium)', 'Hair', 220, 'GHS', 'Kolo Survey Q2 2026'),
+  ('Kumasi', 'Metal Gate Welding (per m2)', 'Welding', 750, 'GHS', 'Kolo Survey Q2 2026'),
+  ('Ibadan', 'Cooked Meal Tray', 'Food', 2500, 'NGN', 'Kolo Survey Q2 2026')
+ON CONFLICT (region, item_name, currency) DO NOTHING;

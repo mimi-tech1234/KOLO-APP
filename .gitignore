@@ -3,10 +3,13 @@ node_modules/
 package-lock.json
 yarn.lock
 
-# Environment files
+# Environment files (never commit secrets)
 .env
 .env.local
 .env.*.local
+apps/mobile/.env
+apps/api/.env.production
+apps/web/.env.production
 
 # Logs
 logs/

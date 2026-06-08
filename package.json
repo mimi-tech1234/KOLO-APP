@@ -14,6 +14,7 @@
     "start:api": "npm --workspace @kolo/api run start",
     "build:pwa": "npm --workspace @kolo/web run build:pwa",
     "build:apk": "npm --workspace @kolo/web run apk:debug",
-    "cap:open:android": "npm --workspace @kolo/web run cap:open:android"
+    "cap:open:android": "npm --workspace @kolo/web run cap:open:android",
+    "db:migrate": "node packages/db/migrate.mjs"
   }
 }

@@ -5,4 +5,4 @@ VALUES
   ('Accra', 'Hair Braiding (Medium)', 'Hair', 220, 'GHS', 'Kolo Survey Q2 2026'),
   ('Kumasi', 'Metal Gate Welding (per m2)', 'Welding', 750, 'GHS', 'Kolo Survey Q2 2026'),
   ('Ibadan', 'Cooked Meal Tray', 'Food', 2500, 'NGN', 'Kolo Survey Q2 2026')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (region, item_name, currency) DO NOTHING;
